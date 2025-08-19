@@ -1,6 +1,12 @@
 from app_config import app_config
 from app_log import *
 
+from os.path import dirname, abspath
+from os import chdir
+import sys
+
+
+chdir(dirname(abspath(sys.argv[0])))
 
 try:
     configure(True, app_config.get_int("app_log.trace_min_level"), "APP", False, log_local=True, log_file=app_config.get_string("app_log.log_file"))

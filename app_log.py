@@ -3,7 +3,7 @@ from threading import Event
 
 #region Configuration
 
-__all__ = ["info", "warn", "error", "wrap_exception", "configure"]
+__all__ = ["info", "warn", "error", "critical", "wrap_exception", "configure"]
 _level_to_string = ["INFO", "WARNING", "ERROR", "CRITICAL"]
 
 _config = {
