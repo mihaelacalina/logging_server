@@ -28,12 +28,9 @@ def _cleanup(database):
 
     info("Log cleanup finished.")
 
-def _thread():
-    from queue import Empty as QueueEmptyException
+def _load_db():
     from sqlite3 import connect as sqlite
-    from app_log import wrap_exception
     from app_config import app_config
-    import schedule as scheduler
 
 
     database = sqlite(app_config.get_path("logger.log_file"))
@@ -54,6 +51,16 @@ def _thread():
         """
     )
 
+    return database
+
+def _thread():
+    from queue import Empty as QueueEmptyException
+    from app_log import wrap_exception, warn
+    import schedule as scheduler
+
+    
+    database = _load_db()
+
     scheduler.every().day.at("04:30").do(_cleanup)
     scheduler.every().second.do(database.commit)
 
@@ -70,6 +77,14 @@ def _thread():
                 database.execute("INSERT INTO logs (time, level, message, trace, source, category) VALUES (DATETIME('now'), ?, ?, ?, ?, ?);", log)
             except Exception as exception:
                 wrap_exception("Exception occured while writing to database", exception)
+                warn("Reloading database.")
+
+                try:
+                    database.close()
+                except Exception:
+                    pass
+
+                database = _load_db()
         except QueueEmptyException:
             pass
     
