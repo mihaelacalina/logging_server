@@ -1,5 +1,5 @@
 __pycache__/
 *.pyc
-/files/log.sqlite
-/files/log.log
+files/log.sqlite
+files/log.log
 *.pyc

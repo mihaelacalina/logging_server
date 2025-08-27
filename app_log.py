@@ -3,8 +3,14 @@ from threading import Event
 
 #region Configuration
 
-__all__ = ["info", "warn", "error", "critical", "wrap_exception", "configure"]
-_level_to_string = ["INFO", "WARNING", "ERROR", "CRITICAL"]
+__all__ = ["debug", "info", "warn", "error", "critical", "wrap_exception", "configure"]
+_level_to_string = {
+    -1: "DEBUG",
+     0: "INFO",
+     1: "WARNING",
+     2: "ERROR",
+     3: "CRITICAL"
+}
 
 _config = {
     "default_category": "",
@@ -28,6 +34,12 @@ _log_queue = Queue()
 
 #region Public functions
 
+def debug(message: str, category: str = None):
+    """
+        Outputs a DEBUG 
+    """
+    _output(message, -1, category)
+
 def info(message: str, category: str = None):
     _output(message, 0, category)
 
@@ -37,18 +49,11 @@ def warn(message: str, category: str = None):
 def error(message: str, category: str = None):
     _output(message, 2, category)
 
-def critical(message: str, category: str = None, sound: bool = True):
+def critical(message: str, category: str = None):
     _output(message, 3, category)
 
-    if sound:
-        try:
-            with open("/dev/speaker", "w") as speaker:
-                speaker.write("L64 B")
-        except Exception:
-            pass
-
-def wrap_exception(message: str, exception: Exception, category: str = None):
-    _output(f"Unhandled {exception.__class__.__name__}: {message}", 2, category, exception)
+def wrap_exception(message: str, exception: Exception, category: str = None, level: int = 2):
+    _output(f"Unhandled {exception.__class__.__name__} ({exception.__str__()}): {message}", level, category, exception)
 
 #endregion
 
@@ -68,7 +73,6 @@ def _thread(event: Event):
     from threading import main_thread
     
     with Socket(AF_INET, SOCK_DGRAM) as socket:
-
         event.set()
         
         while True:
@@ -174,4 +178,3 @@ def configure(write_stdout: bool = True, trace_min_level: int = 2, default_categ
             _local_log_handle = open(log_file, "w")
         except Exception:
             raise RuntimeError("Unable to create local log file.")
-    
