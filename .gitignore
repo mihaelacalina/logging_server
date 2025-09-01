@@ -1,5 +1,3 @@
-__pycache__/
-*.pyc
-files/log.sqlite
-files/log.log
-*.pyc
+/installer
+files/local.log
+files/dedicated.sqlite

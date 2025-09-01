@@ -2,9 +2,16 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Start project",
+            "label": "Start Project",
             "type": "shell",
-            "command": "\"python \\\"${workspaceFolder}/startup.py\\\"\"",
+            "command": "python \\\"${workspaceFolder}\\startup.py\\\"",
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "panel": "dedicated",
+                "showReuseMessage": false,
+                "clear": true
+            },
             "group": {
                 "kind": "build",
                 "isDefault": true

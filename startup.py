@@ -1,20 +1,31 @@
-from app_config import app_config
-from app_log import *
-
 from os.path import dirname, abspath
+from logger import configure_logger
+from logger import *
 from os import chdir
-import sys
 
 
-chdir(dirname(abspath(sys.argv[0])))
+# Changes cwd to the app directory.
+
+chdir(dirname(abspath(__file__)))
+
 
 try:
-    configure(True, app_config.get_int("app_log.trace_min_level"), "APP", False, log_local=True, log_file=app_config.get_string("app_log.log_file"))
+    from config import config
 
-    info("Log Server is starting up.")
+    configure_logger(
+        log_local = True,
+        log_remote = False,
+        log_local_file = config["local_log_file"],
+        app_name="Log Server",
+        debug = config["debug"]
+    )
+    
+    info("Starting up")
 
-    import source.main as _
-except Exception as exception:
-    wrap_exception(str(exception), exception)
+    import src.main as _
+except KeyboardInterrupt:
+    info("Stopped by keyboard")
+except BaseException as exception:
+    realtime("Log Server crashed", exception)
 finally:
-    info("Log Server is shutting down.")
+    info("Shutting down")
