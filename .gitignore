@@ -2,3 +2,5 @@
 files/local.log
 files/dedicated.sqlite
 __pycache__/
+*.py[cod]
+*$py.class
