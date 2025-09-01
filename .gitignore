@@ -1,3 +1,4 @@
 /installer
 files/local.log
 files/dedicated.sqlite
+__pycache__/
