@@ -5,6 +5,7 @@ from queue import Queue
 
 __all__ = ["log_context", "debug", "info", "warn", "error", "realtime"]
 
+
 #region private
 
 _level_to_string = ["DEBUG", "INFO", "WARNING", "ERROR", "REALTIME"]
@@ -113,9 +114,6 @@ def _logger_thread():
 
                     try:
                         str_packet = dumps(packet, separators=(",", ":"))
-
-                        debug("Sending log", send_remote=False)
-                        debug(str_packet, send_remote=False)
 
                         remote_handle.sendto(str_packet.encode(), (_log_remote_host, _log_remote_port))
                     except IOError as exception:
@@ -306,19 +304,26 @@ def _is_valid_domain(address: str):
 
 #region public
 
-def log_context(name: str):
+def log_context(name: str, file_path: str|None = None):
     """
-        Sets the context name for all log calls from this file to the provided one.
+        Sets the context name for all log calls from the provided file to the given name.
 
-        :param name: The name of the context assigned to the module calling this function.
-        It will be turned to uppercase.
+        :param name: The name of the context assigned to the provided file path. It will be turned to uppercase.
+        :param file_path: The path of the file to assign the name to. If not provided, the path will be that of the module calling this function.
+    
+        :return: False if the file path could not be discovered, True otherwise.
     """
     calling_file = _get_calling_file()
-
-    if calling_file is None:
-        return
     
-    _context_names[calling_file] = name.upper()
+    if file_path is None and calling_file is not None:
+        file_path = calling_file
+
+    if file_path is None:
+        return False
+    
+    _context_names[file_path] = name.upper()
+
+    return True
 
 def configure_logger(
         log_stdout: bool = True,

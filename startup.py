@@ -24,8 +24,8 @@ try:
 
     import src.main as _
 except KeyboardInterrupt:
-    info("Stopped by keyboard")
+    pass
 except BaseException as exception:
-    realtime("Log Server crashed", exception)
+    realtime("Application crashed", exception)
 finally:
     info("Shutting down")

@@ -139,9 +139,12 @@ def _thread():
             except QueueEmptyError:
                 pass
             finally:
-                # Exit the thread if all logs have been saved and the main thread is dead.
+                try:
+                    schedule.run_pending()
+                except Exception as exception:
+                    error("Error occured while running tasks", exception)
 
-                schedule.run_pending()
+                # Exit the thread if all logs have been saved and the main thread is dead.
 
                 if not main_thread().is_alive() and _log_queue.qsize() == 0:
                     break
