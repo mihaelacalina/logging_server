@@ -5,7 +5,6 @@ from queue import Queue
 
 __all__ = ["log_context", "debug", "info", "warn", "error", "realtime"]
 
-
 #region private
 
 _level_to_string = ["DEBUG", "INFO", "WARNING", "ERROR", "REALTIME"]
@@ -123,7 +122,7 @@ def _logger_thread():
             except QueueEmptyError:
                 pass
             finally:
-                # Exit if the main thread is dead and the log queue is empty, otherwise save all logs before exiting.
+                # Exit if the main thread is dead and the log queue is empty, otherwise continue saving logs before exiting.
 
                 if not main_thread().is_alive() and _log_queue.qsize() == 0:
                     break
@@ -148,7 +147,7 @@ def _get_log_text(log_entry: "LogEntry"):
     if exception is None:
         text = f"[{time}] [{context}] [{string_level}]: {message}"
     else:
-        text = f"[{time}] [{context}] [{string_level}]: {message}: {string_exception}"
+        text = f"[{time}] [{context}] [{string_level}]: {message}: [{exception.__class__.__name__}]: {string_exception}"
 
     if level >= _trace_min_level:
         text += "\n[TRACE]:"
@@ -304,26 +303,19 @@ def _is_valid_domain(address: str):
 
 #region public
 
-def log_context(name: str, file_path: str|None = None):
+def log_context(name: str):
     """
-        Sets the context name for all log calls from the provided file to the given name.
+        Sets the context name for all log calls from this file to the provided one.
 
-        :param name: The name of the context assigned to the provided file path. It will be turned to uppercase.
-        :param file_path: The path of the file to assign the name to. If not provided, the path will be that of the module calling this function.
-    
-        :return: False if the file path could not be discovered, True otherwise.
+        :param name: The name of the context assigned to the module calling this function.
+        It will be turned to uppercase.
     """
     calling_file = _get_calling_file()
-    
-    if file_path is None and calling_file is not None:
-        file_path = calling_file
 
-    if file_path is None:
-        return False
+    if calling_file is None:
+        return
     
-    _context_names[file_path] = name.upper()
-
-    return True
+    _context_names[calling_file] = name.upper()
 
 def configure_logger(
         log_stdout: bool = True,
